@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Interaction</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Blockchain Interaction</h1>
+    
+    <!-- Number Operations -->
+    <button id="getNumberButton">Get number</button>
+    <button id="increaseNumberButton">Increase Number</button>
+    <button id="decreaseNumberButton">Decrease Number</button>
+    <p>Number: <span id="numberDisplay">none</span></p>
+    
+    <!-- Message Operations -->
+    <button id="getMessageButton">Get message</button>
+    <p>Message: <span id="messageDisplay">none</span></p>
+    <input type="text" id="newMessageInput" placeholder="Enter new Message">
+    <button id="updateMessageButton">Update Message</button>
+
+    <script>
+        // Check for MetaMask
+        window.addEventListener('load', function() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask is installed!');
+            } else {
+                alert('MetaMask is not installed!');
+            }
+        });
+
+        // Web3 and contract setup
+        const web3 = new Web3(window.ethereum);
+        const contractABI = [{
+            "inputs": [
+                {"internalType": "uint256", "name": "startingPoint", "type": "uint256"},
+                {"internalType": "string", "name": "startingPoint", "type": "startingpoint"}
+            ]
+        }];
+        const contractAddress = '0x087A743401f8517bB8b005FE2cfdEA57505bdf7C';
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Elements
+        const getNumberButton = document.getElementById('getNumberButton');
+        const increaseNumberButton = document.getElementById('increaseNumberButton');
+        const decreaseNumberButton = document.getElementById('decreaseNumberButton');
+        const numberDisplay = document.getElementById('numberDisplay');
+        const getMessageButton = document.getElementById('getMessageButton');
+        const messageDisplay = document.getElementById('messageDisplay');
+        const newMessageInput = document.getElementById('newMessageInput');
+        const updateMessageButton = document.getElementById('updateMessageButton');
+
+        // Event Listeners
+        getNumberButton.addEventListener('click', async () => {
+            const number = await contract.methods.getNumber().call();
+            numberDisplay.textContent = number;
+        });
+
+        increaseNumberButton.addEventListener('click', async () => {
+            const accounts = await web3.eth.requestAccounts();
+            await contract.methods.increaseNumber().send({ from: accounts[0] });
+            const number = await contract.methods.getNumber().call();
+            numberDisplay.textContent = number;
+        });
+
+        decreaseNumberButton.addEventListener('click', async () => {
+            const accounts = await web3.eth.requestAccounts();
+            await contract.methods.decreaseNumber().send({ from: accounts[0] });
+            const number = await contract.methods.getNumber().call();
+            numberDisplay.textContent = number;
+        });
+
+        getMessageButton.addEventListener('click', async () => {
+            const message = await contract.methods.getMessage().call();
+            messageDisplay.textContent = message;
+        });
+
+        updateMessageButton.addEventListener('click', async () => {
+            const accounts = await web3.eth.requestAccounts();
+            const newMessage = newMessageInput.value;
+            await contract.methods.updateMessage(newMessage).send({ from: accounts[0] });
+            const message = await contract.methods.getMessage().call();
+            messageDisplay.textContent = message;
+        });
+    </script>
+</body>
+</html>
